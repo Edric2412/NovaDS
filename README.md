@@ -2,7 +2,7 @@ When Using vscode, download the following extensions :
 
     1. HTML , CSS Support
     2. Javascript (ES6) Code Snippets
-    3. Live server( to run this code in a localhost page )
+    3. Live server( to run this code in browser )
 
 
 
