@@ -15,6 +15,9 @@ When Using vscode, download the following extensions :
 
 **Bombdefuser.html** :- 
 Correct Wire - Blue
+
 Bomb Delay Wire - Yellow
+
 Bomb Hasten Wire - Black
+
 Wrong Wire - Red and Green
