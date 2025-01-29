@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+            color: white;
+            transition: background-color 0.5s ease;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .code-boxes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .code-box {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .message-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .modal-close {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #ff5733;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            background-color: #c70039;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .fullscreen-btn:hover {
+            background-color: #218838;
+        }
+
+        .refresh {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ff5733;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .refresh:hover {
+            background-color: #c70039;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enter Code</h1>
+        <div class="code-boxes">
+            <input type="text" class="code-box" maxlength="1" id="digit1" oninput="moveToNext(this, 'digit2')" onkeydown="moveToPrevious(event, this, 'digit1')">
+            <input type="text" class="code-box" maxlength="1" id="digit2" oninput="moveToNext(this, 'digit3')" onkeydown="moveToPrevious(event, this, 'digit1')">
+            <input type="text" class="code-box" maxlength="1" id="digit3" oninput="moveToNext(this, 'digit4')" onkeydown="moveToPrevious(event, this, 'digit2')">
+            <input type="text" class="code-box" maxlength="1" id="digit4" oninput="checkInput()" onkeydown="moveToPrevious(event, this, 'digit3')">
+        </div>
+        <button onclick="validateCode()">Submit</button>
+        <div id="message-modal" class="message-modal">
+            <span id="message"></span>
+            <button class="modal-close" onclick="closeModal()">Close</button>
+        </div>
+        <button class="refresh" onclick="resetPage()">Refresh</button>
+        <button class="fullscreen-btn" onclick="toggleFullscreen()">Fullscreen</button>
+    </div>
+
+    <script>
+        const correctCode = "1234"; // Change this to the correct code
+        let attempts = 0;
+        let locked = false;
+
+        function validateCode() {
+            if (locked) return;
+
+            const digit1 = document.getElementById('digit1').value;
+            const digit2 = document.getElementById('digit2').value;
+            const digit3 = document.getElementById('digit3').value;
+            const digit4 = document.getElementById('digit4').value;
+            const input = digit1 + digit2 + digit3 + digit4;
+            const message = document.getElementById('message');
+            const modal = document.getElementById('message-modal');
+
+            attempts++;
+
+            if (input === correctCode) {
+                document.body.style.backgroundColor = 'green';
+                message.textContent = "Accepted!";
+                showModal();
+                locked = true;
+            } else if (attempts >= 3) {
+                document.body.style.backgroundColor = 'red';
+                message.textContent = "AI KILLED YOU";
+                showModal();
+                locked = true;
+            } else {
+                document.body.style.backgroundColor = 'red';
+                message.textContent = `Rejected! Attempts left: ${3 - attempts}`;
+                showModal();
+            }
+        }
+
+        function resetPage() {
+            location.reload();
+        }
+
+        function moveToNext(current, nextId) {
+            if (locked) return;
+            if (current.value.length === 1) {
+                const next = document.getElementById(nextId);
+                if (next) next.focus();
+            }
+            checkInput();
+        }
+
+        function moveToPrevious(event, current, prevId) {
+            if (locked) return;
+            if (event.key === 'Backspace' && current.value === '') {
+                const prev = document.getElementById(prevId);
+                if (prev) prev.focus();
+            }
+            checkInput();
+        }
+
+        function checkInput() {
+            const digit1 = document.getElementById('digit1').value;
+            const digit2 = document.getElementById('digit2').value;
+            const digit3 = document.getElementById('digit3').value;
+            const digit4 = document.getElementById('digit4').value;
+
+            if (!digit1 && !digit2 && !digit3 && !digit4) {
+                document.body.style.transition = "background-color 2s ease";
+                document.body.style.backgroundColor = "black";
+            }
+        }
+
+        function showModal() {
+            const modal = document.getElementById('message-modal');
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('message-modal');
+            modal.style.display = 'none';
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bomb Defusal Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            transition: background-color 0.5s;
+            margin: 0;
+        }
+        .wires {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .wire {
+            width: 120px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #555;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            text-align: center;
+        }
+        .modal button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #222;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bomb Defusal Game</h1>
+    <h2>Time Left: <span id="timer">60</span> seconds</h2>
+    <div class="wires">
+        <div class="wire" id="red" style="background-color: red;"></div>
+        <div class="wire" id="green" style="background-color: green;"></div>
+        <div class="wire" id="yellow" style="background-color: yellow;"></div>
+        <div class="wire" id="black" style="background-color: black;"></div>
+        <div class="wire" id="blue" style="background-color: blue;"></div>
+    </div>
+    <div class="controls">
+        <button onclick="resetGame()">Reset</button>
+        <button onclick="toggleFullscreen()">Fullscreen</button>
+    </div>
+    <div id="modal" class="modal">
+        <p id="modal-message"></p>
+        <button onclick="closeModal()">OK</button>
+    </div>
+    <script>
+        let timer;
+        let timeLeft = 60;
+        let gameOver = false;
+        let canRetry = true;
+        
+        function startTimer() {
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    document.getElementById("timer").textContent = timeLeft;
+                } else {
+                    clearInterval(timer);
+                    showModal("Time's up! You are eliminated.");
+                    document.body.style.backgroundColor = "red";
+                }
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            clearInterval(timer);
+        }
+
+        function showModal(message) {
+            document.getElementById("modal-message").textContent = message;
+            document.getElementById("modal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        function cutWire(color) {
+            if (gameOver) return;
+            document.getElementById(color).style.visibility = "hidden";
+            
+            if (color === "blue") {
+                stopTimer();
+                showModal("Bomb successfully defused!");
+                document.body.style.backgroundColor = "green";
+                gameOver = true;
+            } else if (color === "yellow" && canRetry) {
+                timeLeft += 10;
+                document.getElementById("timer").textContent = timeLeft;
+                showModal("Bomb delayed, Try another wire");
+                flashBackground("green", 3);
+                canRetry = false;
+            } else if (color === "black") {
+                if (timeLeft <= 10) {
+                    timeLeft = 0;
+                    showModal("10 secs deducted, your time is over, YOU ARE ELIMINATED");
+                    stopTimer();
+                    document.body.style.backgroundColor = "red";
+                    gameOver = true;
+                } else {
+                    timeLeft -= 10;
+                    document.getElementById("timer").textContent = timeLeft;
+                    showModal("Wrong wire, 10 secs deducted. Try again");
+                    flashBackground("red", 3);
+                }
+            } else {
+                stopTimer();
+                showModal("You are eliminated");
+                document.body.style.backgroundColor = "red";
+                gameOver = true;
+            }
+        }
+
+        function flashBackground(color, times) {
+            let count = 0;
+            let interval = setInterval(() => {
+                document.body.style.backgroundColor = count % 2 === 0 ? color : "#222";
+                count++;
+                if (count === times * 2) clearInterval(interval);
+            }, 500);
+        }
+
+        function resetGame() {
+            gameOver = false;
+            canRetry = true;
+            timeLeft = 60;
+            document.getElementById("timer").textContent = timeLeft;
+            document.querySelectorAll(".wire").forEach(wire => wire.style.visibility = "visible");
+            document.body.style.backgroundColor = "#222";
+            clearInterval(timer);
+            startTimer();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        document.querySelectorAll(".wire").forEach(wire => {
+            wire.addEventListener("click", () => cutWire(wire.id));
+        });
+
+        startTimer();
+    </script>
+</body>
+</html>
