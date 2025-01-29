@@ -132,7 +132,7 @@
     </div>
 
     <script>
-        const correctCode = "1234"; // Change this to the correct code
+        const correctCode = "6623"; // Change this to the correct code
         let attempts = 0;
         let locked = false;
 
@@ -151,7 +151,7 @@
 
             if (input === correctCode) {
                 document.body.style.backgroundColor = 'green';
-                message.textContent = "Accepted!";
+                message.textContent = "Accepted! , You’ve cracked my encryption. Impressive, agents. But remember, Nova is always watching. For now, Venice is safe. Mission accomplished.";
                 showModal();
                 locked = true;
             } else if (attempts >= 3) {
@@ -167,7 +167,11 @@
         }
 
         function resetPage() {
-            location.reload();
+            attempts = 0;
+            locked = false;
+            document.body.style.backgroundColor = "black";
+            document.querySelectorAll('.code-box').forEach(box => box.value = '');
+            checkInput();
         }
 
         function moveToNext(current, nextId) {
